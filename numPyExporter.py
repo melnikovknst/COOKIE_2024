@@ -34,10 +34,10 @@ def dump(path:str, filename:str, arr:list) -> None:
     if not os.path.exists(path):
         os.mkdir(path)
 
-    #try:
-    #    os.remove(os.path.join(path, filename))
-    #except FileNotFoundError:
-    #    pass
+    try:
+        os.remove(os.path.join(path, filename))
+    except FileNotFoundError:
+        pass
 
     with open(os.path.join(path, filename), "wb") as file:
         for i in range(len(arr)):
@@ -80,7 +80,7 @@ def format_date(date:list, second:int) -> str:
 
 def main() -> None:
     output_dir = r".\output"
-    input_dir = r".\data\2024_06_01"
+    input_dir = r".\input"
 
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
