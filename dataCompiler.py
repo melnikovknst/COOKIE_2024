@@ -10,21 +10,20 @@ def process(file, input_dir=".\\input\\", output_dir=".\\output\\") -> None:
 
     arr = np.fromfile(input_dir + file, dtype=np.int16) #reading splitted files
 
-    arr = np.array(np.array_split(arr, 4), dtype=np.float64).T #spliting into 4 channels, and transposing for filtration
+    arr = np.array(np.array_split(arr, 4), dtype=np.float32).T #spliting into 4 channels, and transposing for filtration
 
-
-    #detrend
-    for i in range(0, arr.shape[1]):
-        arr[:, i] = signal.detrend(arr[:, i], type="linear")
-
-    #filter
     cls = filter.BandPassFiltration()
-    filter_data = lambda trace: cls.filter_data(trace, freq_sample_rate=samplerate, frequency=[5, 15000], order=1)
-    filtered_data = np.array([filter_data(arr[:, i]) for i in range(arr.shape[1])]).T
+    detrend_trace = lambda trace: signal.detrend(trace)
+    filter_trace = lambda trace: cls.filter_data(trace, freq_sample_rate=samplerate, frequency=[5, 15000], order=1)
+    norm_data = lambda data: data / np.max(abs(data))
 
-    #normalization
-    for i in range(0, filtered_data.shape[1]):
-        filtered_data[:, i] /= np.max(abs(filtered_data[:, i]))
+    arr_prepared = np.zeros_like(arr)
+    for i in range(arr.shape[1]):
+        trace = arr[:, i]
+        detrended_trace = detrend_trace(trace)
+        filtered_trace = filter_trace(detrended_trace)
+        arr_prepared[:, i] = filtered_trace
+    arr_norm = norm_data(arr_prepared)
 
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
@@ -33,15 +32,9 @@ def process(file, input_dir=".\\input\\", output_dir=".\\output\\") -> None:
     except FileNotFoundError:
         pass
     with open(output_dir + file, "wb") as f:
-        for i in range(filtered_data.shape[1]):
-            f.write(arr[:, i])
+        for i in range(arr_norm.shape[1]):
+            f.write(arr_norm[:, i])
 
-
-def draw(arr):
-    time = np.linspace(0, 90 * 100, arr.shape[0])
-    plt.plot(time, arr[:, 0], lw=0.1)
-    #plt.xlim(10, 11)
-    plt.show()
 
 def main():
     dir = '.\\input\\'

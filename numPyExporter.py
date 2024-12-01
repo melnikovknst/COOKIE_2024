@@ -4,12 +4,10 @@ from scipy.io import wavfile
 import numpy as np
 
 
-def slicefile(file:str, channels:int) -> np.ndarray:
-    samplerate, data = wavfile.read(file)
+def slicefile(input_dir:str, file:str, channels:int) -> np.ndarray:
+    samplerate, data = wavfile.read(os.path.join(input_dir, file))
     tmp = []
     unsorted_res = []
-
-    print(data[0])
 
     length = data.shape[0] / samplerate
 
@@ -89,11 +87,24 @@ def main() -> None:
 
     for i in os.listdir(input_dir):
         if i.endswith(".wav"):
-            arr = slicefile(r"C:\Users\Alex\Documents\COOCKIE_2024\data\2024_06_01\d001_msi_fragment_2024_06_01__14_33_20_to_2024_06_01__14_34_50.wav", 4)
+            arr = slicefile(input_dir, i, 4)
+            print("parsing file: ", i)
 
             for j in range(len(arr)):
-                print("parsed files: ", j)
                 dump(output_dir, format_date(get_date_from_filename(i), j), arr[j])
+
+
+def sliceAndDump(input_path:str, output_path:str) -> None:
+    if not os.path.exists(output_path):
+        os.mkdir(output_path)
+
+    for i in os.listdir(input_path):
+        if i.endswith(".wav"):
+            arr = slicefile(r"C:\Users\Alex\Documents\COOCKIE_2024\data\2024_06_01\d001_msi_fragment_2024_06_01__14_33_20_to_2024_06_01__14_34_50.wav", 4)
+            print("parsing file: ", i)
+
+            for j in range(len(arr)):
+                dump(output_path, format_date(get_date_from_filename(i), j), arr[j])
 
 if __name__ == "__main__":
     main()
