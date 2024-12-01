@@ -1,5 +1,7 @@
-'''converts all files from input_dir which are .npy
+'''draws files from input_dir which are .npy
    for proper work files must be in format channel1| ... | channel4 (without any splitters in between)
+   input - string (filename)
+   input - int (n files to read from input_dir)
 '''
 import os
 
@@ -26,13 +28,13 @@ def main() -> None:
     files_to_draw = input()
 
     try:
-        int(files_to_draw)
+        files_to_draw = int(files_to_draw)
         for i in range(files_to_draw):
             create_sub_plots(os.path.join(input_dir, os.listdir(input_dir)[i]))
     except ValueError:
         try:
             if not files_to_draw.endswith(".npy"):
-                print("File is not a numPy file.")
+                print("File is not a numPy file.\nExiting...")
             else:
                 create_sub_plots(os.path.join(input_dir, files_to_draw))
         except FileNotFoundError:
